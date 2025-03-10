@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { db } from "../../../firebase/firebaseConfig"; 
+import { collection, addDoc } from "firebase/firestore";
+
 import HeroComponent from "../../sections/hero/hero-component";
 import ThreeStepProcessComponent from "../../sections/three-step-process/three-step-process-component";
 import QuoteComponent from "../../sections/quote/quote-component";
@@ -10,9 +13,6 @@ import BeforeFooterCTA from "../../sections/before-footer-cta/before-footer-cta-
 import FooterComponent from "../../sections/footer/footer-component";
 import BloodBankMapComponent from "../../sections/bloodbankmap/blood-bank-map-component";
 
-import Axios from "axios";
-import newUsersInsertRequest from "../../utility-functions/new-users-insert-request";
-
 const NeedBloodPage = () => {
 	const [formData, setFormData] = useState({
 		name: "",
@@ -22,35 +22,34 @@ const NeedBloodPage = () => {
 		message: "",
 	});
 
-	const handleSubmit = (e) => {
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState("");
+	const [success, setSuccess] = useState(false);
+
+	const handleSubmit = async (e) => {
 		e.preventDefault();
+		setLoading(true);
+		setError("");
+		setSuccess(false);
 
-		console.log(formData);
-
-		Axios.post("http://localhost:3001/create-need-blood", {
-			name: formData.name,
-			email: formData.email,
-			phone: formData.phone,
-			bloodType: formData.bloodType,
-			message: formData.message,
-		})
-			.then((response) => {
-				console.log("success");
-				console.log(response.data);
-			})
-			.catch((error) => {
-				console.log(error);
+		try {
+			// 🔥 FIXED: Updated Collection Name (Removed Space)
+			await addDoc(collection(db, "emergency_blood_requests"), formData);
+			setSuccess(true);
+			setError(""); // 🔥 Clear error if successful
+			setFormData({
+				name: "",
+				email: "",
+				phone: "",
+				bloodType: "",
+				message: "",
 			});
-
-		newUsersInsertRequest(formData, "need-blood");
-
-		setFormData({
-			name: "",
-			email: "",
-			phone: "",
-			bloodType: "",
-			message: "",
-		});
+		} catch (err) {
+			setError("Failed to submit request. Please try again.");
+			console.error("Firestore Error: ", err);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	const NeedBloodPageDetails = {
@@ -157,11 +156,15 @@ const NeedBloodPage = () => {
 			<FormComponent
 				fields={fields}
 				heading={"Request for emergency blood"}
-				buttonText={"Request blood"}
+				buttonText={loading ? "Submitting..." : "Request blood"}
 				handleSubmit={handleSubmit}
 				formData={formData}
 				setFormData={setFormData}
 			/>
+			{/* 🔥 Display success or error messages */}
+			{success && <p className="text-green-600 text-center">Request submitted successfully!</p>}
+			{error && <p className="text-red-600 text-center">{error}</p>}
+
 			<QuoteComponent {...NeedBloodPageDetails.quote} />
 			<SearchBloodStockComponent {...NeedBloodPageDetails.bloodStock} />
 			<ThreeStepProcessComponent
@@ -169,9 +172,7 @@ const NeedBloodPage = () => {
 				stepDetails={stepDetails}
 			/>
 			<BloodBankMapComponent />
-			<CriteriaComponent
-				{...NeedBloodPageDetails.tips_for_managing_blood_loss}
-			/>
+			<CriteriaComponent {...NeedBloodPageDetails.tips_for_managing_blood_loss} />
 			<BeforeFooterCTA />
 			<FooterComponent />
 		</>
