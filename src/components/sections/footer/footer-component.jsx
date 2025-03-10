@@ -59,7 +59,7 @@ const FooterComponent = () => {
 				<div className="first-section-wrapper grid sm:grid-cols-[1.5fr_1fr_1fr] gap-10">
 					<div className="flex flex-col footer-col first-col">
 						<h2 className="not-italic font-bold text-[40px] leading-[55px] text-white">
-							Hemo<span className="text-[red]">Cell</span>
+							Hemo<span className="text-[red]">Care</span>
 						</h2>
 						<h3 className="not-italic font-normal text-[20px] leading-10 text-[#D9D9D9]">
 							You don't have to be a doctor to save a life: Just

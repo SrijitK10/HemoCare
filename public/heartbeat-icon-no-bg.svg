@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <!-- Red heart -->
+  <path d="M150 270C150 270 20 191.25 20 105C20 55 55 20 95 20C129 20 150 45 150 75C150 45 171 20 205 20C245 20 280 55 280 105C280 191.25 150 270 150 270Z" fill="#c1272d"/>
+  
+  <!-- White heartbeat line -->
+  <path d="M70 150H108L120 120L140 190L160 120L180 170L195 150H230" stroke="white" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
