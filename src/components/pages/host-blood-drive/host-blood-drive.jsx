@@ -32,6 +32,18 @@ const HostBloodDrivePage = () => {
         console.log("Sending email...");
 
         try {
+            // Format dateTime to 24-hour format
+            const formattedDateTime = formData.dateTime
+                ? new Date(formData.dateTime).toLocaleString("en-GB", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false, // Enforce 24-hour format
+                  })
+                : "Not provided";
+
             // Prepare email parameters
             const emailParams = {
                 name: formData.name,
@@ -41,14 +53,14 @@ const HostBloodDrivePage = () => {
                 designation: formData.designation || "N/A",
                 city: formData.city,
                 message: formData.message || "No message provided",
-                dateTime: formData.dateTime || "Not provided",
+                dateTime: formattedDateTime,
             };
 
             // Send email using EmailJS
             await emailjs.send(SERVICE_ID, TEMPLATE_ID, emailParams, PUBLIC_KEY);
             console.log("Email sent successfully!");
 
-            // Insert user into another database if needed
+            // Insert user into Firestore or another database if needed
             newUsersInsertRequest(formData, "host-blood-drive");
 
             // Reset form fields
