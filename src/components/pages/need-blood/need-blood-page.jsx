@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { db } from "../../../firebase/firebaseConfig"; 
 import { collection, addDoc } from "firebase/firestore";
 
@@ -11,7 +11,9 @@ import SearchBloodStockComponent from "../../sections/search-blood-stock/search-
 import HeaderComponent from "../../sections/header/header-component";
 import BeforeFooterCTA from "../../sections/before-footer-cta/before-footer-cta-components";
 import FooterComponent from "../../sections/footer/footer-component";
-import BloodBankMapComponent from "../../sections/bloodbankmap/blood-bank-map-component";
+import MapComponent from "../../sections/map/MapComponent";
+// import MapplsComponent from "../../sections/mappls-map/MapplsComponent";
+
 
 const NeedBloodPage = () => {
 	const [formData, setFormData] = useState({
@@ -33,10 +35,10 @@ const NeedBloodPage = () => {
 		setSuccess(false);
 
 		try {
-			// 🔥 FIXED: Updated Collection Name (Removed Space)
+			// FIXED: Updated Collection Name (Removed Space)
 			await addDoc(collection(db, "emergency_blood_requests"), formData);
 			setSuccess(true);
-			setError(""); // 🔥 Clear error if successful
+			setError(""); // Clear error if successful
 			setFormData({
 				name: "",
 				email: "",
@@ -171,10 +173,13 @@ const NeedBloodPage = () => {
 				stepsText={NeedBloodPageDetails.stepsText}
 				stepDetails={stepDetails}
 			/>
-			<BloodBankMapComponent />
+			
 			<CriteriaComponent {...NeedBloodPageDetails.tips_for_managing_blood_loss} />
+			<MapComponent />
 			<BeforeFooterCTA />
 			<FooterComponent />
+			
+			
 		</>
 	);
 };
