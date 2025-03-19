@@ -16,10 +16,10 @@ const FooterComponent = () => {
 			title: "Request Blood",
 			link: "/need-blood",
 		},
-		{
-			title: "Donate Money",
-			link: "https://donorbox.org/donate-money-11",
-		},
+		// {
+		// 	title: "Donate Money",
+		// 	link: "https://donorbox.org/donate-money-11",
+		// },
 		{
 			title: "Host Blood Drive",
 			link: "/host-blood-drive",
@@ -36,16 +36,16 @@ const FooterComponent = () => {
 
 	const contactLinks = [
 		{
-			title: "(+92)-304-050-9060",
-			link: "tel:+923040509060",
+			title: "(+91)-96741-8400",
+			link: "tel:+91967418400",
 		},
 		{
 			title: "help@hemocell.com",
 			link: "mailto:help@hemocell.com",
 		},
 		{
-			title: "Karachi, Pakistan",
-			link: "https://goo.gl/maps/QCLpYP3yyUqdT8HA7",
+			title: "Chennai, India",
+			link: "https://maps.app.goo.gl/mWiRXjJcP2PBCogD8",
 		},
 		{
 			title: "Open 24/7",
@@ -59,7 +59,7 @@ const FooterComponent = () => {
 				<div className="first-section-wrapper grid sm:grid-cols-[1.5fr_1fr_1fr] gap-10">
 					<div className="flex flex-col footer-col first-col">
 						<h2 className="not-italic font-bold text-[40px] leading-[55px] text-white">
-							Hemo<span className="text-[red]">Cell</span>
+							Hemo<span className="text-[red]">Care</span>
 						</h2>
 						<h3 className="not-italic font-normal text-[20px] leading-10 text-[#D9D9D9]">
 							You don't have to be a doctor to save a life: Just
@@ -103,13 +103,13 @@ const FooterComponent = () => {
 				</div>
 				<div className="footer-col fourth-col text-center mt-10 border-t-[1px] border-off_white/[.2] pt-6">
 					<h3 className="not-italic text-center font-regular text-[18px] leading-[34px] text-[#D9D9D9] ">
-						©️ 2023 HemoCell - Website design by{" "}
+						©️ 2025 HemoCare - Website design by{" "}
 						<a
-							href="https://linkedin.com/in/moazamdev"
+							href="https://github.com/SrijitK10"
 							className="underline"
 							target="_blank"
 						>
-							AlphaDev
+							Srijit & Mehul
 						</a>
 					</h3>
 				</div>

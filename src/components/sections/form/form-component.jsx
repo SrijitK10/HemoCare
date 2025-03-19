@@ -13,19 +13,34 @@ const FormComponent = ({
 	handleSubmit,
 }) => {
 	const [status, setStatus] = useState("Pending");
+
+	// Style for input fields
 	const inputStyles = `block w-full flex justify-start items-start rounded-rsm border-0 px-8 py-3 md:px-10 md:py-4 bg-light text-white ring-none placeholder:text-white outline-none focus:ring-1 focus:ring-center focus:bg-dark focus:ring-light sm:text-sm sm:leading-6`;
+
+	// Restrict available times to between 09:00 and 17:45
+	const filterTime = (time) => {
+		const hours = time.getHours();
+		const minutes = time.getMinutes();
+		return hours >= 9 && (hours < 17 || (hours === 17 && minutes <= 45));
+	};
+
+	// Prevent selecting past dates/times
+	const filterDate = (date) => {
+		const today = new Date();
+		return date >= today;
+	};
 
 	return (
 		<WrapperSection>
 			<div
-				className={`form-wrapper -mt-[10em] w-full relative p-6 py-10 lg:p-20 lg:pb-10 rounded-rmd z-[25] overflow-hidden`}
+				className="form-wrapper -mt-[10em] w-full relative p-6 py-10 lg:p-20 lg:pb-10 rounded-rmd z-[25] overflow-hidden"
 			>
 				<h3 className="not-italic text-center font-medium text-[16px] sm:text-[25px] leading-[34px] tracking-[0.2em] sm:tracking-[0.3em] uppercase text-white">
 					{heading}
 				</h3>
 				{status === "Submitted" ? (
 					<p className="text-center text-white text-sm sm:text-base mt-5">
-						Thank you for contacting HemoCell. We will get back to you as soon as possible.
+						Thank you for contacting HemoCare. We will get back to you as soon as possible.
 					</p>
 				) : (
 					<form
@@ -36,8 +51,8 @@ const FormComponent = ({
 							setStatus("Submitted");
 						}}
 					>
-						{fields.map((field) => 
-							field.type === "datetime" ? (
+						{fields.map((field) =>
+							field.type === "datetime-local" ? (
 								<div key={field.key} className="grid sm:col-span-2 gap-5 w-full">
 									<label className="text-white">{field.placeholder}</label>
 									<DatePicker
@@ -47,9 +62,13 @@ const FormComponent = ({
 										timeFormat="HH:mm"
 										timeIntervals={15}
 										timeCaption="Time"
-										dateFormat="MMMM d, yyyy h:mm aa"
+										dateFormat="dd-MM-yyyy HH:mm"
+										minDate={new Date()} // Restrict past dates
+										filterDate={filterDate} // Ensure only valid dates
+										filterTime={filterTime} // Restrict time selection
 										className={inputStyles}
 										placeholderText={field.placeholder}
+										required={field.required}
 									/>
 								</div>
 							) : (
@@ -71,7 +90,7 @@ const FormComponent = ({
 							<button
 								type="submit"
 								name="submit"
-								className={`rounded-rsm border border-white hover:border-red text-dark bg-white hover:bg-red hover:text-white transition px-10 py-4 text-sm w-fit font-bold cursor-pointer`}
+								className="rounded-rsm border border-white hover:border-red text-dark bg-white hover:bg-red hover:text-white transition px-10 py-4 text-sm w-fit font-bold cursor-pointer"
 							>
 								{buttonText}
 							</button>

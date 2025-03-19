@@ -30,20 +30,27 @@ const HostBloodDrivePage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Sending email...");
-
+    
         try {
-            // Format dateTime to 24-hour format
-            const formattedDateTime = formData.dateTime
-                ? new Date(formData.dateTime).toLocaleString("en-GB", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false, // Enforce 24-hour format
-                  })
-                : "Not provided";
-
+            // Ensure dateTime is formatted properly
+            let formattedDateTime = "Not provided";
+            if (formData.dateTime) {
+                const dateObj = new Date(formData.dateTime);
+                formattedDateTime = dateObj.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                }).replace(/\//g, "-"); // Convert to DD-MM-YYYY format
+    
+                const formattedTime = dateObj.toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false, // Use 24-hour format
+                });
+    
+                formattedDateTime = `${formattedDateTime} ${formattedTime}`; // Combine Date and Time
+            }
+    
             // Prepare email parameters
             const emailParams = {
                 name: formData.name,
@@ -53,16 +60,16 @@ const HostBloodDrivePage = () => {
                 designation: formData.designation || "N/A",
                 city: formData.city,
                 message: formData.message || "No message provided",
-                dateTime: formattedDateTime,
+                dateTime: formattedDateTime, // Use formatted date-time
             };
-
+    
             // Send email using EmailJS
             await emailjs.send(SERVICE_ID, TEMPLATE_ID, emailParams, PUBLIC_KEY);
             console.log("Email sent successfully!");
-
-            // Insert user into Firestore or another database if needed
+    
+            // Insert user into another database if needed
             newUsersInsertRequest(formData, "host-blood-drive");
-
+    
             // Reset form fields
             setFormData({
                 name: "",
@@ -78,7 +85,6 @@ const HostBloodDrivePage = () => {
             console.error("Error sending email:", error);
         }
     };
-
     const HostBloodDrivePageDetails = {
         quote: {
             classHint: "quote host-drive-quote",
