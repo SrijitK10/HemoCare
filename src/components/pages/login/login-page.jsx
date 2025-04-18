@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -9,7 +10,14 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const auth = getAuth();
+  const { currentUser } = useAuth();
+
+  // If user is already logged in, redirect to admin page
+  if (currentUser) {
+    navigate('/admin');
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,9 +26,31 @@ const LoginPage = () => {
     
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/admin');
+      // Redirect to the page they tried to visit or to admin dashboard
+      const from = location.state?.from?.pathname || '/admin';
+      navigate(from, { replace: true });
     } catch (error) {
-      setError('Invalid email or password');
+      let errorMessage = 'Invalid email or password';
+      
+      // Handle specific Firebase authentication errors
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts. Please try again later';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        default:
+          errorMessage = 'An error occurred. Please try again';
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -38,31 +68,20 @@ const LoginPage = () => {
       <div className="max-w-md w-full mx-4 animate-fade-in relative z-10">
         <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-red-100">
           {/* Header Section */}
-          <div className="bg-gradient-to-r from-red-600 to-red-700 py-8 px-8 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-red-600 via-red-700 to-red-800 py-8 px-8 relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAzNGM0LjQxOCAwIDgtMy41ODIgOC04cy0zLjU4Mi04LTgtOC04IDMuNTgyLTggOCAzLjU4MiA4IDggOHoiIHN0cm9rZT0iI0ZGRiIgc3Ryb2tlLW9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-10"></div>
-            <div className="flex items-center justify-center relative">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-                <svg 
-                  className="w-8 h-8 text-white animate-pulse" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth="2" 
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </div>
+            
+            <div className="relative z-10">
+              <h2 className="text-center text-4xl font-bold tracking-wide mb-4">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-red-500 to-red-600">
+                  HemoCare Admin
+                </span>
+              </h2>
+              <div className="w-24 h-1 mx-auto bg-gradient-to-r from-orange-400 via-red-500 to-red-600 rounded-full"></div>
+              <p className="mt-4 text-center text-red-100 drop-shadow text-lg">
+                Secure access to your dashboard
+              </p>
             </div>
-            <h2 className="mt-6 text-center text-3xl font-bold text-white">
-              HemoCare Admin
-            </h2>
-            <p className="mt-2 text-center text-red-100">
-              Secure access to your dashboard
-            </p>
           </div>
 
           {/* Form Section */}
@@ -145,16 +164,20 @@ const LoginPage = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
+                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-lg text-sm font-medium text-gray-900 bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:from-red-500 hover:via-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
                   <span className="relative flex items-center">
                     {isLoading ? (
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                    ) : null}
+                    ) : (
+                      <svg className="w-5 h-5 mr-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                      </svg>
+                    )}
                     {isLoading ? 'Signing in...' : 'Sign in'}
                   </span>
                 </button>

@@ -1,11 +1,19 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { getAuth } from 'firebase/auth';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-  const auth = getAuth();
+  const { currentUser, loading } = useAuth();
   const location = useLocation();
 
-  if (!auth.currentUser) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
     // Redirect to login page but save the attempted location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
