@@ -5,6 +5,8 @@ import HostBloodDrivePage from "./components/pages/host-blood-drive/host-blood-d
 import NeedBloodPage from "./components/pages/need-blood/need-blood-page";
 import ContactPage from "./components/pages/contact/contact-page";
 import Admin from "./components/layouts/admin";
+import LoginPage from "./components/pages/login/login-page";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 import Dashboard from "../src/components/views/admin/dashboard";
 import AdminDonateBlood from "../src/components/views/admin/admin-donate-blood";
@@ -26,7 +28,15 @@ export default function App() {
 				<Route path="/donate-blood" element={<DonateBloodPage />} />
 				<Route path="/need-blood" element={<NeedBloodPage />} />
 				<Route path="/contact" element={<ContactPage />} />
-				<Route path="/admin" element={<Admin />}>
+				<Route path="/login" element={<LoginPage />} />
+				<Route
+					path="/admin"
+					element={
+						<ProtectedRoute>
+							<Admin />
+						</ProtectedRoute>
+					}
+				>
 					<Route index element={<Dashboard />} />
 					<Route path="donate-blood" element={<AdminDonateBlood />} />
 					<Route path="need-blood" element={<AdminNeedBlood />} />
