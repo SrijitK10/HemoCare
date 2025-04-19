@@ -9,7 +9,7 @@ const TwoCtaComponent = () => {
 			key: "donate-blood",
 			ctaClass: "first-cta-col",
 			subheading: "Save a life today",
-			heading: "Donate blood at HemoCell",
+			heading: "Donate blood at HemoCare",
 			btnText: "Donate blood",
 			ctaLink: "/donate-blood",
 		},
