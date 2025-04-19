@@ -3,6 +3,7 @@ import CardStats from "../../sections/cta-card/cta-card-component";
 import HeaderStats from "../../sections/header-stats/header_stats";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useDatabase } from "../../../contexts/DatabaseContext";
 
 import { BiDonateBlood, BiHelpCircle } from "react-icons/bi";
 import { MdOutlineBloodtype } from "react-icons/md";
@@ -13,6 +14,7 @@ import DisplayTableComponent from "../../sections/display-table/display-table-co
 import InitialDataFetching from "../../utility-functions/initial-data-fetching";
 
 const Dashboard = () => {
+	const { appointments, emergencyRequests, bloodStock, loading } = useDatabase();
 	const [data, setData] = useState([]);
 	const [filter, setFilter] = useState("");
 	const [selectedOpt, setSelectedOpt] = useState("name");
@@ -44,36 +46,36 @@ const Dashboard = () => {
 		{
 			key: 111,
 			statSubtitle: "DONATE BLOOD",
-			statTitle: "000,030",
+			statTitle: appointments?.length || "0",
 			statArrow: "up",
-			statPercent: "3.48",
+			statPercent: "0",
 			statIconName: <BiDonateBlood />,
 			to: "/admin/donate-blood",
 		},
 		{
 			key: 222,
 			statSubtitle: "NEED BLOOD",
-			statTitle: "00,023",
+			statTitle: emergencyRequests?.length || "0",
 			statArrow: "down",
-			statPercent: "0.19",
+			statPercent: "0",
 			statIconName: <MdOutlineBloodtype />,
 			to: "/admin/need-blood",
 		},
 		{
 			key: 333,
-			statSubtitle: "HOST DRIVE",
-			statTitle: "00,040",
+			statSubtitle: "BLOOD STOCK",
+			statTitle: bloodStock?.length || "0",
 			statArrow: "up",
-			statPercent: "1.10",
+			statPercent: "0",
 			statIconName: <MdOutlineVolunteerActivism />,
-			to: "/admin/host-blood-drive",
+			to: "/admin/blood-stock",
 		},
 		{
 			key: 444,
 			statSubtitle: "NEED HELP",
-			statTitle: "00,023",
+			statTitle: "0",
 			statArrow: "down",
-			statPercent: "2.19",
+			statPercent: "0",
 			statIconName: <BiHelpCircle />,
 			to: "/admin/need-help",
 		},
@@ -152,6 +154,14 @@ const Dashboard = () => {
 	];
 
 	const tableHeader = ["Name", "Email", "Phone", "Date", "Source", "Actions"];
+
+	if (loading) {
+		return (
+			<div className="flex justify-center items-center h-64">
+				<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+			</div>
+		);
+	}
 
 	return (
 		<>
