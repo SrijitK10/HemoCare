@@ -5,6 +5,8 @@ const RequestTable = ({ collectionName, title, columns }) => {
   const { 
     appointments,
     emergencyRequests,
+    helpRequests,
+    bloodDriveRequests,  // Add this line
     updateRequestStatus,
     deleteRequest,
     loading,
@@ -17,12 +19,62 @@ const RequestTable = ({ collectionName, title, columns }) => {
         return appointments || [];
       case 'emergency_blood_requests':
         return emergencyRequests || [];
+      case 'helpRequests':
+        return helpRequests || [];
+      case 'blood_drive_requests':  // Add this case
+        return bloodDriveRequests || [];
       default:
         return [];
     }
   };
 
+  const formatDate = (dateTimeString) => {
+    if (!dateTimeString) return '-';
+    try {
+      // The dateTime string is in format "DD/MM/YYYY HH:mm"
+      const [datePart, timePart] = dateTimeString.split(' ');
+      if (!datePart) return '-';
+      
+      // Parse the date part (format: DD/MM/YYYY)
+      const [day, month, year] = datePart.split('/').map(Number);
+      
+      // Create a new date object (months are 0-based in JavaScript)
+      const date = new Date(year, month - 1, day);
+      
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.error('Invalid date:', dateTimeString);
+        return '-';
+      }
+      
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '-';
+    }
+  };
+
+  const formatTime = (dateTimeString) => {
+    if (!dateTimeString) return '-';
+    try {
+      // Split the dateTime string into date and time parts
+      const [datePart, timePart] = dateTimeString.split(' ');
+      return timePart || '-';
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return '-';
+    }
+  };
+
   const requests = getRequests();
+  console.log('Sample request data:', requests[0]); // Add this line
+  console.log('Collection Name:', collectionName);
+  console.log('Blood Drive Requests:', bloodDriveRequests);
+  console.log('Filtered Requests:', requests);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -71,6 +123,37 @@ const RequestTable = ({ collectionName, title, columns }) => {
     );
   }
 
+  const formatFieldValue = (value, columnKey) => {
+    if (!value) return '-';
+
+    // Handle Firestore Timestamp objects
+    if (value && typeof value === 'object' && 'seconds' in value) {
+      const date = new Date(value.seconds * 1000);
+      if (columnKey === 'time') {
+        return date.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+
+    // Handle regular string dates
+    if (columnKey === 'date' && typeof value === 'string') {
+      return formatDate(value);
+    }
+    if (columnKey === 'time' && typeof value === 'string') {
+      return formatTime(value);
+    }
+
+    // Return string value for other fields
+    return String(value);
+  };
+
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
@@ -97,8 +180,11 @@ const RequestTable = ({ collectionName, title, columns }) => {
             {requests.map((request) => (
               <tr key={request.id}>
                 {columns.map((column) => (
-                  <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {request[column.key] || '-'}
+                  <td 
+                    key={column.key} 
+                    className={`px-6 py-4 whitespace-nowrap text-sm ${column.className || 'text-gray-500'}`}
+                  >
+                    {formatFieldValue(request[column.key], column.key)}
                   </td>
                 ))}
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -127,4 +213,4 @@ const RequestTable = ({ collectionName, title, columns }) => {
   );
 };
 
-export default RequestTable; 
+export default RequestTable;

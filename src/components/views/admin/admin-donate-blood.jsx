@@ -7,8 +7,8 @@ const AdminDonateBlood = () => {
 		{ key: 'email', label: 'Email' },
 		{ key: 'phone', label: 'Phone' },
 		{ key: 'bloodType', label: 'Blood Type' },
-		{ key: 'location', label: 'Location' },
-		{ key: 'date', label: 'Appointment Date' },
+		{ key: 'date', label: 'Appointment Date', className: 'font-semibold text-gray-900' },
+		{ key: 'time', label: 'Appointment Time' },
 		{ key: 'status', label: 'Status' }
 	];
 

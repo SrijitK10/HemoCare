@@ -14,7 +14,13 @@ import DisplayTableComponent from "../../sections/display-table/display-table-co
 import InitialDataFetching from "../../utility-functions/initial-data-fetching";
 
 const Dashboard = () => {
-	const { appointments, emergencyRequests, bloodStock, loading } = useDatabase();
+	const { 
+	appointments, 
+	emergencyRequests, 
+	bloodStock, 
+	helpRequests,  // Add this
+	loading 
+	} = useDatabase();
 	const [data, setData] = useState([]);
 	const [filter, setFilter] = useState("");
 	const [selectedOpt, setSelectedOpt] = useState("name");
@@ -70,15 +76,16 @@ const Dashboard = () => {
 			statIconName: <MdOutlineVolunteerActivism />,
 			to: "/admin/blood-stock",
 		},
+		// In cardData array
 		{
-			key: 444,
-			statSubtitle: "NEED HELP",
-			statTitle: "0",
-			statArrow: "down",
-			statPercent: "0",
-			statIconName: <BiHelpCircle />,
-			to: "/admin/need-help",
-		},
+		key: 444,
+		statSubtitle: "NEED HELP",
+		statTitle: helpRequests?.length || "0",  // Update this line
+		statArrow: "down",
+		statPercent: "0",
+		statIconName: <BiHelpCircle />,
+		to: "/admin/need-help",
+		}
 	];
 
 	const filterData = (search) => {
@@ -88,24 +95,14 @@ const Dashboard = () => {
 			if (selectedOpt === "all") {
 				return true;
 			} else if (
-				selectedOpt === "checked" &&
-				"no".toLowerCase().includes(search.toLowerCase()) &&
-				item.checked === 0
+				selectedOpt === "appointmentDate" ||
+				selectedOpt === "appointmentTime" ||
+				selectedOpt === "name" ||
+				selectedOpt === "email" ||
+				selectedOpt === "phone" ||
+				selectedOpt === "source"
 			) {
-				matches = true;
-			} else if (
-				selectedOpt === "checked" &&
-				"yes".toLowerCase().includes(search.toLowerCase()) &&
-				item.checked === 1
-			) {
-				matches = true;
-			} else if (
-				item[selectedOpt]
-					.toString()
-					.toLowerCase()
-					.includes(search.toLowerCase())
-			) {
-				matches = true;
+				matches = item[selectedOpt]?.toString().toLowerCase().includes(search.toLowerCase());
 			} else {
 				matches = false;
 			}
@@ -151,9 +148,11 @@ const Dashboard = () => {
 		{ id: 3, name: "Phone", value: "phone" },
 		{ id: 4, name: "Email", value: "email" },
 		{ id: 5, name: "Source", value: "source" },
+		{ id: 6, name: "Date", value: "appointmentDate" },
+		{ id: 7, name: "Time", value: "appointmentTime" }
 	];
 
-	const tableHeader = ["Name", "Email", "Phone", "Date", "Source", "Actions"];
+	const tableHeader = ["Name", "Email", "Phone", "Date", "Time", "Source", "Actions"];
 
 	if (loading) {
 		return (

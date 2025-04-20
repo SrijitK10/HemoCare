@@ -3,12 +3,13 @@ import RequestTable from '../../admin/RequestTable';
 import { useDatabase } from '../../../contexts/DatabaseContext';
 
 const AdminNeedHelp = () => {
-	const { loading, error } = useDatabase();
+	const { loading, error, helpRequests } = useDatabase();
 	
 	const columns = [
 		{ key: 'name', label: 'Name' },
 		{ key: 'email', label: 'Email' },
 		{ key: 'phone', label: 'Phone' },
+		{ key: 'reason', label: 'Reason' },
 		{ key: 'message', label: 'Message' },
 		{ key: 'status', label: 'Status' }
 	];
@@ -33,7 +34,7 @@ const AdminNeedHelp = () => {
 		<div className="container mx-auto px-4 py-8">
 			<h1 className="text-2xl font-bold text-gray-900 mb-6">Help Requests</h1>
 			<RequestTable
-				collectionName="emergency_blood_requests"
+				collectionName="helpRequests"
 				title="Help Requests"
 				columns={columns}
 			/>

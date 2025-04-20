@@ -3,15 +3,16 @@ import RequestTable from '../../admin/RequestTable';
 import { useDatabase } from '../../../contexts/DatabaseContext';
 
 const AdminHostBloodDrive = () => {
-	const { loading, error } = useDatabase();
+	const { loading, error, bloodDriveRequests } = useDatabase();
 	
 	const columns = [
-		{ key: 'organization', label: 'Organization' },
-		{ key: 'contactPerson', label: 'Contact Person' },
+		{ key: 'name', label: 'Name' },
 		{ key: 'email', label: 'Email' },
 		{ key: 'phone', label: 'Phone' },
-		{ key: 'location', label: 'Location' },
-		{ key: 'date', label: 'Event Date' },
+		{ key: 'institute', label: 'Institute' },
+		{ key: 'designation', label: 'Designation' },
+		{ key: 'city', label: 'City' },
+		{ key: 'dateTime', label: 'Preferred Date' },  // Change this line
 		{ key: 'status', label: 'Status' }
 	];
 
@@ -33,10 +34,10 @@ const AdminHostBloodDrive = () => {
 
 	return (
 		<div className="container mx-auto px-4 py-8">
-			<h1 className="text-2xl font-bold text-gray-900 mb-6">Host Blood Drive Requests</h1>
+			<h1 className="text-2xl font-bold text-gray-900 mb-6">Blood Drive Hosting Requests</h1>
 			<RequestTable
-				collectionName="appointments"
-				title="Blood Drive Hosting Requests"
+				collectionName="blood_drive_requests"
+				title="Hosting Requests"
 				columns={columns}
 			/>
 		</div>

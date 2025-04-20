@@ -22,6 +22,8 @@ const NeedBloodPage = () => {
 		phone: "",
 		bloodType: "",
 		message: "",
+		location: "",
+		urgency: "normal" // Default to normal urgency
 	});
 
 	const [loading, setLoading] = useState(false);
@@ -35,8 +37,14 @@ const NeedBloodPage = () => {
 		setSuccess(false);
 
 		try {
+			// Add timestamp to the form data
+			const dataWithTimestamp = {
+				...formData,
+				timestamp: new Date().toISOString()
+			};
+			
 			// FIXED: Updated Collection Name (Removed Space)
-			await addDoc(collection(db, "emergency_blood_requests"), formData);
+			await addDoc(collection(db, "emergency_blood_requests"), dataWithTimestamp);
 			setSuccess(true);
 			setError(""); // Clear error if successful
 			setFormData({
@@ -45,6 +53,8 @@ const NeedBloodPage = () => {
 				phone: "",
 				bloodType: "",
 				message: "",
+				location: "",
+				urgency: "normal"
 			});
 		} catch (err) {
 			setError("Failed to submit request. Please try again.");
@@ -148,6 +158,25 @@ const NeedBloodPage = () => {
 			placeholder: "Blood Type",
 			required: false,
 		},
+		{
+			key: "location",
+			name: "location",
+			type: "text",
+			placeholder: "Location (City/Area)",
+			required: true,
+		},
+		{
+			key: "urgency",
+			name: "urgency",
+			type: "select",
+			placeholder: "Urgency Level",
+			required: true,
+			options: [
+				{ value: "normal", label: "Normal" },
+				{ value: "urgent", label: "Urgent" },
+				{ value: "emergency", label: "Emergency" }
+			]
+		}
 	];
 
 	return (
