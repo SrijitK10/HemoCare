@@ -16,6 +16,7 @@
 		"@heroicons/react": "^2.0.17",
 		"axios": "^1.3.6",
 		"chart.js": "^4.3.0",
+		"emailjs-com": "^3.2.0",
 		"firebase": "^11.4.0",
 		"leaflet": "^1.9.4",
 		"mappls-web-maps": "^3.5.8",

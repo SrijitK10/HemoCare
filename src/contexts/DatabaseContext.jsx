@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collection, query, onSnapshot, orderBy, where, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy, where, getDocs, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
+import { sendStatusUpdateEmail } from '../firebase/notificationService';
 
 const DatabaseContext = createContext();
 
@@ -69,9 +70,47 @@ export const DatabaseProvider = ({ children }) => {
   const updateRequestStatus = async (collectionName, docId, status) => {
     try {
       const docRef = doc(db, collectionName, docId);
-      await updateDoc(docRef, { status });
+      
+      // First, get the current data to access contact information
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const requestData = docSnap.data();
+        
+        // Update status in Firestore
+        await updateDoc(docRef, { status });
+        
+        // Only send notifications for approved or rejected status
+        if (status === 'approved' || status === 'rejected') {
+          // Extract relevant information for the notification
+          const email = requestData.email;
+          const name = requestData.name || requestData.patientName || 'Patient';
+          const requestType = collectionName === 'appointments' ? 'appointment' : 'emergency';
+          
+          // Send email notification
+          if (email) {
+            try {
+              await sendStatusUpdateEmail(
+                email, 
+                name, 
+                requestType, 
+                status, 
+                {
+                  id: docId,
+                  date: requestData.date,
+                  time: requestData.time,
+                  bloodType: requestData.bloodType
+                }
+              );
+            } catch (notificationError) {
+              console.error('Failed to send notification:', notificationError);
+              // Continue with the status update even if notification fails
+            }
+          }
+        }
+      }
     } catch (error) {
       setError(error.message);
+      throw error;
     }
   };
 
