@@ -23,10 +23,14 @@ This guide explains how to set up EmailJS to enable email notifications when req
 3. Design your templates with the following dynamic variables:
    - `{{to_name}}` - Recipient's name
    - `{{to_email}}` - Recipient's email
+   - `{{from_name}}` - Sender name (HemoCare Blood Donation Center)
+   - `{{subject}}` - Email subject line
    - `{{request_type}}` - Type of request (appointment or emergency)
    - `{{status}}` - New status (approved or rejected)
    - `{{request_id}}` - ID of the request
    - `{{message}}` - The detailed status message
+
+4. **IMPORTANT**: Make sure your template includes ALL the variables listed above. EmailJS requires all variables referenced in your code to exist in the template, even if you don't display them all.
 
 Example template:
 ```html
@@ -47,9 +51,11 @@ Example template:
         <p>{{message}}</p>
         
         <p>Request ID: <strong>{{request_id}}</strong></p>
+        <p>Request Type: <strong>{{request_type}}</strong></p>
+        <p>Status: <strong>{{status}}</strong></p>
         
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #666;">
-            <p>This is an automated notification from HemoCare Blood Donation Center.<br>
+            <p>This is an automated notification from {{from_name}}.<br>
             Please do not reply to this email.</p>
         </div>
     </div>
@@ -57,7 +63,7 @@ Example template:
 </html>
 ```
 
-4. Save each template and note down their **Template IDs**.
+5. Save each template and note down their **Template IDs**.
 
 ## Configuring Environment Variables
 
@@ -77,7 +83,21 @@ Update these values in the `.env` file to match your EmailJS account settings:
 3. `VITE_EMAILJS_TEMPLATE_ID`: The Template ID for general/emergency notifications
 4. `VITE_EMAILJS_TEMPLATE_DONATE_ID`: The Template ID for donation appointment notifications
 
-## Testing
+## Testing the Email Configuration
+
+We've included a testing utility to help verify that your EmailJS configuration is working correctly:
+
+1. Navigate to the `/email-tester` route in the application (add this to your browser URL).
+2. Enter a valid email address where you want to receive the test email.
+3. Click "Send Test Email" and wait for the result.
+4. The test will provide detailed information about any configuration issues.
+
+If the test fails, check:
+- Your environment variables are set correctly
+- Your email template includes all required parameters
+- Your email service is connected and active in EmailJS
+
+## Testing in the Admin Dashboard
 
 1. In the admin dashboard, approve or reject a request that has an email address associated with it.
 2. The system should send an automated email notification to the user.
@@ -85,7 +105,13 @@ Update these values in the `.env` file to match your EmailJS account settings:
 
 ## Troubleshooting
 
-- If emails are not being sent, check the browser console for any errors related to EmailJS.
-- Verify that all environment variables are correctly set in the `.env` file.
-- Make sure the email has proper information including the recipient's email address.
-- Check your EmailJS dashboard to see if there are any delivery issues or quota limitations. 
+- If you see a 422 error (Unprocessable Entity), it typically means:
+  - Your template parameters don't match what the template expects
+  - Required fields are missing in your template parameters
+  - Check that all variables sent in the code (`from_name`, `subject`, etc.) are defined in your email template
+
+- Other common issues:
+  - Verify that all environment variables are correctly set in the `.env` file.
+  - Make sure the email address is valid and properly formatted.
+  - Check your EmailJS dashboard to see if there are any delivery issues or quota limitations.
+  - Try updating your template in EmailJS to include all the parameters sent from the code. 

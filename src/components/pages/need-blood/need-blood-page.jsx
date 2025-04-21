@@ -141,8 +141,14 @@ const NeedBloodPage = () => {
 			key: "email",
 			name: "email",
 			type: "email",
-			placeholder: "Email",
+			placeholder: "Email (required for notifications)",
 			required: true,
+			validate: (value) => {
+				if (!value) return "Email is required for status notifications";
+				const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+				if (!emailRegex.test(value)) return "Please enter a valid email address";
+				return null;
+			}
 		},
 		{
 			key: "phone",

@@ -1,5 +1,5 @@
 import HomePage from "./components/pages/home/home-page";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import DonateBloodPage from "./components/pages/donate-blood/donate-blood-page";
 import HostBloodDrivePage from "./components/pages/host-blood-drive/host-blood-drive";
 import NeedBloodPage from "./components/pages/need-blood/need-blood-page";
@@ -16,6 +16,8 @@ import AdminNeedBlood from "../src/components/views/admin/admin-need-blood";
 import AdminHostBloodDrive from "../src/components/views/admin/admin-host-blood-drive";
 import AdminNeedHelp from "../src/components/views/admin/admin-need-help";
 import AdminBloodStock from './components/views/admin/admin-blood-stock';
+import EmailTester from './components/utility-functions/EmailTester';
+import DataChecker from './components/utility-functions/DataChecker';
 
 export default function App() {
 	return (
@@ -33,6 +35,8 @@ export default function App() {
 					<Route path="/need-blood" element={<NeedBloodPage />} />
 					<Route path="/contact" element={<ContactPage />} />
 					<Route path="/login" element={<LoginPage />} />
+					<Route path="/email-tester" element={<EmailTester />} />
+					<Route path="/data-checker" element={<DataChecker />} />
 					<Route
 						path="/admin"
 						element={

@@ -11,9 +11,10 @@ const ThreeStepProcessComponent = ( { stepDetails, stepsText } ) => {
 					headingText={stepsText.headingText}
 				/>
 				<div className="process-steps-wrapper mt-5 sm:mt-10 grid md:grid-cols-[1fr_1fr_1fr]">
-					{stepDetails.map((stepDetail) => (
-						<ProcessStepComponent {...stepDetail} />
-					))}
+					{stepDetails.map((stepDetail) => {
+						const { key, ...otherProps } = stepDetail;
+						return <ProcessStepComponent key={key} {...otherProps} />;
+					})}
 				</div>
 			</div>
 		</WrapperSection>

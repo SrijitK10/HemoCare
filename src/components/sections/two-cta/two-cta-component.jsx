@@ -2,6 +2,7 @@ import "./two-cta-styles.scss";
 
 import WrapperSection from "../wrapper-section/wrapper-section-component";
 import ButtonComponent from "../button/button-component";
+import { Link } from "react-router-dom";
 
 const TwoCtaComponent = () => {
 	const ctaDetails = [
@@ -27,8 +28,7 @@ const TwoCtaComponent = () => {
 		<WrapperSection>
 			<div className="cta-content-wrapper grid place-items-start sm:grid-cols-[1fr_1fr] gap-[20px] w-full">
 				{ctaDetails.map((ctaDetail) => (
-					<a
-						href={ctaDetail.ctaLink}
+					<div
 						key={ctaDetail.key}
 						className={`cta-col sm:before:transition rounded-rmd overflow-hidden w-full relative z-[25] pt-[150px] pb-[30px] sm:pb-[50px] px-[30px] sm:px-[50px] ${ctaDetail.ctaClass}`}
 					>
@@ -45,14 +45,15 @@ const TwoCtaComponent = () => {
 								buttonLink={ctaDetail.ctaLink}
 								buttonType={"line"}
 							/>
-
-							{/* <button className="cta-btn mt-5 rounded border border-off_white/[.5] transition px-3 py-2 text-sm font-medium text-white hover:bg-white hover:text-dark">
-										<a href="" className="">
-											{ctaDetail.btnText}
-										</a>
-									</button> */}
 						</div>
-					</a>
+						
+						{/* Add a full card overlay link for better UX */}
+						<Link 
+							to={ctaDetail.ctaLink} 
+							className="absolute inset-0 z-10"
+							aria-label={ctaDetail.heading}
+						/>
+					</div>
 				))}
 			</div>
 		</WrapperSection>

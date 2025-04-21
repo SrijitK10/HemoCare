@@ -108,6 +108,16 @@ export const DatabaseProvider = ({ children }) => {
       if (docSnap.exists()) {
         const requestData = docSnap.data();
         
+        console.log('Database record data:', {
+          docId,
+          collectionName,
+          allFields: Object.keys(requestData),
+          emailField: requestData.email,
+          emailFieldType: typeof requestData.email,
+          emailFieldLength: requestData.email?.length,
+          rawData: requestData
+        });
+        
         // Update status in Firestore
         await updateDoc(docRef, { status });
         
@@ -118,14 +128,39 @@ export const DatabaseProvider = ({ children }) => {
           const name = requestData.name || requestData.patientName || 'Patient';
           const requestType = collectionName === 'appointments' ? 'appointment' : 'emergency';
           
-          // Send email notification
+          console.log('Extracted notification data:', {
+            email,
+            name,
+            requestType,
+            status,
+            docId,
+            emailExists: !!email,
+            emailType: typeof email,
+            emailLength: email?.length,
+            emailTrimmed: email?.trim()
+          });
+          
+          // Send email notification if email exists
           if (email) {
             try {
-              await sendStatusUpdateEmail(
+              console.log('Attempting to send email with details:', {
+                email,
+                name,
+                requestType,
+                status,
+                requestDetails: {
+                  id: docId,
+                  date: requestData.date,
+                  time: requestData.time,
+                  bloodType: requestData.bloodType
+                }
+              });
+              
+              const emailResult = await sendStatusUpdateEmail(
                 email, 
                 name, 
                 requestType, 
-                status, 
+                status,
                 {
                   id: docId,
                   date: requestData.date,
@@ -133,10 +168,19 @@ export const DatabaseProvider = ({ children }) => {
                   bloodType: requestData.bloodType
                 }
               );
+              
+              // Check if the email was skipped
+              if (emailResult && emailResult.skipped) {
+                console.log(`Email notification skipped: ${emailResult.reason}`, emailResult);
+              } else {
+                console.log(`Email notification skipped: ${emailResult.reason}`);
+              }
             } catch (notificationError) {
               console.error('Failed to send notification:', notificationError);
               // Continue with the status update even if notification fails
             }
+          } else {
+            console.log(`No email address provided for ${requestType} request (ID: ${docId}). Skipping notification.`);
           }
         }
       }
