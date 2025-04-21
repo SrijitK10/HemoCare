@@ -1,5 +1,6 @@
 import { useState } from "react";
-import emailjs from "@emailjs/browser";
+import { db } from "../../../firebase/firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
 import HeroComponent from "../../sections/hero/hero-component";
 import ThreeStepProcessComponent from "../../sections/three-step-process/three-step-process-component";
 import SideBySideComponent from "../../sections/side-by-side/side-by-side-component";
@@ -8,12 +9,6 @@ import FormComponent from "../../sections/form/form-component";
 import HeaderComponent from "../../sections/header/header-component";
 import BeforeFooterCTA from "../../sections/before-footer-cta/before-footer-cta-components";
 import FooterComponent from "../../sections/footer/footer-component";
-import newUsersInsertRequest from "../../utility-functions/new-users-insert-request";
-
-// Environment variables
-const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const HostBloodDrivePage = () => {
     const [formData, setFormData] = useState({
@@ -27,50 +22,29 @@ const HostBloodDrivePage = () => {
         dateTime: "",
     });
 
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Sending email...");
-    
+        setLoading(true);
+        setError("");
+        setSuccess(false);
+
         try {
-            // Ensure dateTime is formatted properly
-            let formattedDateTime = "Not provided";
-            if (formData.dateTime) {
-                const dateObj = new Date(formData.dateTime);
-                formattedDateTime = dateObj.toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                }).replace(/\//g, "-"); // Convert to DD-MM-YYYY format
-    
-                const formattedTime = dateObj.toLocaleTimeString("en-GB", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false, // Use 24-hour format
-                });
-    
-                formattedDateTime = `${formattedDateTime} ${formattedTime}`; // Combine Date and Time
-            }
-    
-            // Prepare email parameters
-            const emailParams = {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                institute: formData.institute,
-                designation: formData.designation || "N/A",
-                city: formData.city,
-                message: formData.message || "No message provided",
-                dateTime: formattedDateTime, // Use formatted date-time
+            // Add timestamp to the form data
+            const dataWithTimestamp = {
+                ...formData,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
             };
-    
-            // Send email using EmailJS
-            await emailjs.send(SERVICE_ID, TEMPLATE_ID, emailParams, PUBLIC_KEY);
-            console.log("Email sent successfully!");
-    
-            // Insert user into another database if needed
-            newUsersInsertRequest(formData, "host-blood-drive");
-    
-            // Reset form fields
+            
+            // Store in blood_drive_requests collection
+            await addDoc(collection(db, "blood_drive_requests"), dataWithTimestamp);
+            
+            setSuccess(true);
+            setError(""); // Clear error if successful
             setFormData({
                 name: "",
                 email: "",
@@ -81,10 +55,73 @@ const HostBloodDrivePage = () => {
                 message: "",
                 dateTime: "",
             });
-        } catch (error) {
-            console.error("Error sending email:", error);
+        } catch (err) {
+            setError("Failed to submit request. Please try again.");
+            console.error("Firestore Error: ", err);
+        } finally {
+            setLoading(false);
         }
     };
+
+    const fields = [
+        {
+            key: "name",
+            name: "name",
+            type: "text",
+            placeholder: "Name",
+            required: true,
+        },
+        {
+            key: "email",
+            name: "email",
+            type: "email",
+            placeholder: "Email",
+            required: true,
+        },
+        {
+            key: "phone",
+            name: "phone",
+            type: "tel",
+            placeholder: "Phone",
+            required: true,
+        },
+        {
+            key: "institute",
+            name: "institute",
+            type: "text",
+            placeholder: "Institute/Organization",
+            required: true,
+        },
+        {
+            key: "designation",
+            name: "designation",
+            type: "text",
+            placeholder: "Designation",
+            required: true,
+        },
+        {
+            key: "city",
+            name: "city",
+            type: "text",
+            placeholder: "City",
+            required: true,
+        },
+        {
+            key: "dateTime",
+            name: "dateTime",
+            type: "datetime-local",
+            placeholder: "Preferred Date and Time",
+            required: true,
+        },
+        {
+            key: "message",
+            name: "message",
+            type: "textarea",
+            placeholder: "Additional Message",
+            required: false,
+        }
+    ];
+
     const HostBloodDrivePageDetails = {
         quote: {
             classHint: "quote host-drive-quote",
@@ -130,23 +167,21 @@ const HostBloodDrivePage = () => {
     return (
         <>
             <HeaderComponent />
-            <HeroComponent {...HostBloodDrivePageDetails.hero} />
+            <HeroComponent 
+                subheadingText="Host a Blood Drive"
+                headingText="Organize a blood donation camp with us"
+                classHint="hero host-blood-drive-hero"
+            />
             <FormComponent
-                fields={[
-                    { key: "name", name: "name", type: "text", placeholder: "Name", required: true },
-                    { key: "email", name: "email", type: "email", placeholder: "Email", required: true },
-                    { key: "phone", name: "phone", type: "tel", placeholder: "Phone", required: true },
-                    { key: "institute", name: "institute", type: "text", placeholder: "Institute", required: true },
-                    { key: "designation", name: "designation", type: "text", placeholder: "Designation", required: false },
-                    { key: "city", name: "city", type: "text", placeholder: "City", required: true },
-                    { key: "dateTime", name: "dateTime", type: "datetime-local", placeholder: "Select Date & Time", required: true },
-                ]}
-                heading={"Host a Blood Drive"}
-                buttonText={"Schedule Host"}
+                fields={fields}
+                heading="Request to Host a Blood Drive"
+                buttonText={loading ? "Submitting..." : "Submit Request"}
                 handleSubmit={handleSubmit}
                 formData={formData}
                 setFormData={setFormData}
             />
+            {success && <p className="text-green-600 text-center">Request submitted successfully!</p>}
+            {error && <p className="text-red-600 text-center">{error}</p>}
             <ThreeStepProcessComponent stepsText={HostBloodDrivePageDetails.stepsText} stepDetails={stepDetails} />
             <SideBySideComponent {...HostBloodDrivePageDetails.benefits_host_drive} />
             <QuoteComponent {...HostBloodDrivePageDetails.quote} />

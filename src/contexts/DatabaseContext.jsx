@@ -11,6 +11,8 @@ export const DatabaseProvider = ({ children }) => {
   const [appointments, setAppointments] = useState([]);
   const [emergencyRequests, setEmergencyRequests] = useState([]);
   const [bloodStock, setBloodStock] = useState([]);
+  const [helpRequests, setHelpRequests] = useState([]);
+  const [bloodDriveRequests, setBloodDriveRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -57,12 +59,42 @@ export const DatabaseProvider = ({ children }) => {
       }
     );
 
+    const unsubscribeHelpRequests = onSnapshot(
+      query(collection(db, 'helpRequests'), orderBy('timestamp', 'desc')),
+      (snapshot) => {
+        setHelpRequests(snapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          status: doc.data().status || 'pending'
+        })));
+      },
+      (error) => {
+        setError(error.message);
+      }
+    );
+
+    const unsubscribeBloodDriveRequests = onSnapshot(
+      query(collection(db, 'blood_drive_requests'), orderBy('timestamp', 'desc')),
+      (snapshot) => {
+        setBloodDriveRequests(snapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          status: doc.data().status || 'pending'
+        })));
+      },
+      (error) => {
+        setError(error.message);
+      }
+    );
+
     setLoading(false);
 
     return () => {
       unsubscribeAppointments();
       unsubscribeEmergency();
       unsubscribeBloodStock();
+      unsubscribeHelpRequests();
+      unsubscribeBloodDriveRequests();
     };
   }, []);
 
@@ -138,6 +170,8 @@ export const DatabaseProvider = ({ children }) => {
     appointments,
     emergencyRequests,
     bloodStock,
+    helpRequests,
+    bloodDriveRequests,
     loading,
     error,
     updateRequestStatus,

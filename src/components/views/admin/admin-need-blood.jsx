@@ -8,7 +8,7 @@ const AdminNeedBlood = () => {
 		{ key: 'phone', label: 'Phone' },
 		{ key: 'bloodType', label: 'Blood Type' },
 		{ key: 'location', label: 'Location' },
-		{ key: 'urgency', label: 'Urgency' },
+		{ key: 'urgency', label: 'Urgency', className: 'font-semibold' },
 		{ key: 'status', label: 'Status' }
 	];
 
